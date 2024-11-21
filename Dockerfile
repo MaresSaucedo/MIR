@@ -2,7 +2,7 @@
 FROM nginx:alpine
 
 # Copia tu archivo HTML al directorio de contenido de nginx
-COPY mir.html /usr/share/nginx/html/mir.html
+COPY resumen.html /usr/share/nginx/html/resumen.html
 
 # Exponer el puerto 80 para el tráfico HTTP
 EXPOSE 80
