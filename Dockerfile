@@ -3,7 +3,8 @@ FROM nginx:alpine
 
 # Copia el archivo HTML y la configuración de Nginx
 COPY index.html /usr/share/nginx/html/
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/nginx.conf
+
 
 # Verifica la sintaxis de la configuración de Nginx
 RUN nginx -t
