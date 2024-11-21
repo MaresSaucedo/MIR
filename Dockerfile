@@ -2,7 +2,7 @@
 FROM nginx:stable-alpine
 
 # Copia el archivo HTML al directorio de contenido de Nginx
-COPY resumen.html /usr/share/nginx/html/
+COPY index.html /usr/share/nginx/html/
 
 # Expone el puerto 80 para acceder a la aplicación web
 EXPOSE 80
