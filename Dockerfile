@@ -1,8 +1,11 @@
-# Usa una imagen base de nginx para servir archivos estáticos
-FROM nginx:alpine
+# Usa la imagen oficial de Nginx como base
+FROM nginx:stable-alpine
 
-# Copia tu archivo HTML al directorio de contenido de nginx
-COPY resumen.html /usr/share/nginx/html/resumen.html
+# Copia el archivo HTML al directorio de contenido de Nginx
+COPY resumen.html /usr/share/nginx/html/
 
-# Exponer el puerto 80 para el tráfico HTTP
+# Expone el puerto 80 para acceder a la aplicación web
 EXPOSE 80
+
+# Comando para iniciar Nginx en primer plano
+CMD ["nginx", "-g", "daemon off;"]
