@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Indicador de Resultados</title>
+    <script src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        #formularioCaptura {
+            width: 80%;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #mensajeError {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Matriz de Indicador de Resultados</h1>
+    <div id="formularioCaptura">
+        <h2>Resumen Narrativo</h2>
+        <textarea id="fin" rows="3" placeholder="Fin: Comenzar con la palabra 'Contribuir'..."></textarea>
+        <textarea id="proposito" rows="3" placeholder="Propósito: Comenzar con el sujeto beneficiario o ámbito de aplicación, seguido de un verbo en presente y finalizar con el resultado..."></textarea>
+        <div id="componentesContainer"></div>
+        <button id="agregarComponenteBtn">Agregar Componente</button>
+        <button id="capturarBtn">Capturar</button>
+        <button id="exportarBtn">Exportar a Excel</button>
+        <div id="mensajeError"></div>
+    </div>
+
+    <script>
+    let componenteCount = 0;
+
+    function agregarComponente() {
+        componenteCount++;
+        const componenteDiv = document.createElement('div');
+        componenteDiv.innerHTML = `
+            <h3>Componente ${componenteCount}</h3>
+            <textarea class="componente" rows="3" placeholder="Componente: Comenzar con el producto entregado o servicio proporcionado y finalizar con verbo en pasado..."></textarea>
+            <div class="actividadesContainer"></div>
+            <button onclick="agregarActividad(this)">Agregar Actividad</button>
+        `;
+        document.getElementById('componentesContainer').appendChild(componenteDiv);
+    }
+
+    function agregarActividad(btn) {
+        const actividadesContainer = btn.previousElementSibling;
+        const actividadCount = actividadesContainer.children.length + 1;
+        const actividadInput = document.createElement('input');
+        actividadInput.type = 'text';
+        actividadInput.className = 'actividad';
+        actividadInput.placeholder = `Actividad ${actividadCount}: Comenzar con un sustantivo derivado de un verbo y agregar el complemento...`;
+        actividadesContainer.appendChild(actividadInput);
+    }
+
+    function capturarResumen() {
+        const fin = document.getElementById('fin').value;
+        const proposito = document.getElementById('proposito').value;
+        const componentes = document.querySelectorAll('.componente');
+        const actividades = document.querySelectorAll('.actividad');
+
+        if (!validarResumen(fin, proposito, componentes, actividades)) {
+            mostrarError('Por favor, complete todos los campos siguiendo las instrucciones.');
+            return;
+        }
+
+        mostrarError('Resumen capturado correctamente.', false);
+    }
+
+    function validarResumen(fin, proposito, componentes, actividades) {
+        if (!fin.trim().toLowerCase().startsWith('contribuir')) return false;
+        if (!proposito.trim().includes(' ')) return false;
+        if (componentes.length === 0) return false;
+        for (let componente of componentes) {
+            if (!componente.value.trim()) return false;
+        }
+        for (let actividad of actividades) {
+            if (!actividad.value.trim()) return false;
+        }
+        return true;
+    }
+
+    function mostrarError(mensaje, esError = true) {
+        const errorDiv = document.getElementById('mensajeError');
+        errorDiv.textContent = mensaje;
+        errorDiv.style.color = esError ? 'red' : 'green';
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 3000);
+    }
+
+    function exportarMatriz() {
+        const wb = XLSX.utils.book_new();
+        const data = [
+            ['Tipo', 'Descripción'],
+            ['Fin', document.getElementById('fin').value],
+            ['Propósito', document.getElementById('proposito').value]
+        ];
+
+        document.querySelectorAll('.componente').forEach((componente, index) => {
+            data.push([`Componente ${index + 1}`, componente.value]);
+            const actividades = componente.nextElementSibling.querySelectorAll('.actividad');
+            actividades.forEach((actividad, actIndex) => {
+                data.push([`Actividad ${index + 1}.${actIndex + 1}`, actividad.value]);
+            });
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, 'Matriz de Indicadores');
+        XLSX.writeFile(wb, 'Matriz_Indicadores.xlsx');
+    }
+
+    document.getElementById('agregarComponenteBtn').addEventListener('click', agregarComponente);
+    document.getElementById('capturarBtn').addEventListener('click', capturarResumen);
+    document.getElementById('exportarBtn').addEventListener('click', exportarMatriz);
+    </script>
+</body>
+</html>
